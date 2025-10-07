@@ -1,0 +1,259 @@
+LangChain RecursiveCharacterTextSplitter.from_language empirical probe
+langchain-text-splitters: 0.3.11
+langchain: 0.3.27
+Python: 3.13.0
+
+Method: For each language and (chunk_size, overlap), we record separators, count, lengths, and observed overlaps.
+
+=== Language: python ===
+Case: python | chunk_size=50 overlap=10
+Separators (7): ['\nclass ', '\ndef ', '\n\tdef ', '\n\n', '\n', ' ', '']
+Chunks: 14
+Chunk lengths: [42, 14, 30, 16, 16, 28, 20, 35, 18, 37, 24, 33, 16, 46]
+Adjacent overlaps (chars): [0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0]
+  Chunk[0] start: '# A sample Python module\n        import os'
+  Chunk[0] end  : '# A sample Python module\n        import os'
+  Chunk[1] start: 'class Greeter:'
+  Chunk[1] end  : 'class Greeter:'
+  Chunk[2] start: 'def __init__(self, name: str):'
+  Chunk[2] end  : 'def __init__(self, name: str):'
+Overlap approx respected: False
+
+Case: python | chunk_size=100 overlap=20
+Separators (7): ['\nclass ', '\ndef ', '\n\tdef ', '\n\n', '\n', ' ', '']
+Chunks: 7
+Chunk lengths: [42, 90, 61, 68, 84, 50, 46]
+Adjacent overlaps (chars): [0, 0, 0, 0, 0, 8]
+  Chunk[0] start: '# A sample Python module\n        import os'
+  Chunk[0] end  : '# A sample Python module\n        import os'
+  Chunk[1] start: 'class Greeter:\n            def __init__(self, name: str):\n  '
+  Chunk[1] end  : ' __init__(self, name: str):\n                self.name = name'
+  Chunk[2] start: 'def greet(self):\n                print(f"Hello, {self.name}"'
+  Chunk[2] end  : 'ef greet(self):\n                print(f"Hello, {self.name}")'
+Overlap approx respected: False
+
+Case: python | chunk_size=200 overlap=50
+Separators (7): ['\nclass ', '\ndef ', '\n\tdef ', '\n\n', '\n', ' ', '']
+Chunks: 4
+Chunk lengths: [142, 61, 165, 88]
+Adjacent overlaps (chars): [0, 0, 0]
+  Chunk[0] start: '# A sample Python module\n        import os\n\n        class Gr'
+  Chunk[0] end  : ' __init__(self, name: str):\n                self.name = name'
+  Chunk[1] start: 'def greet(self):\n                print(f"Hello, {self.name}"'
+  Chunk[1] end  : 'ef greet(self):\n                print(f"Hello, {self.name}")'
+  Chunk[2] start: 'def long_function():\n            data = [str(i) for i in ran'
+  Chunk[2] end  : '       # A very long docstring-like block to force splitting'
+Overlap approx respected: False
+
+Priority Drill-Down
+Separators (head): ['\nclass ', '\ndef ', '\n\tdef ', '\n\n', '\n', ' ']
+Top sep: '\nclass ' (len=7) | Next: '\ndef ' (len=5)
+Chunk size=80, overlap=0
+s0-split part lengths: [190, 190, 190] (expect >> chunk_size)
+Produced 9 chunks; lengths: [60, 64, 64, 66, 64, 64, 66, 64, 64]
+Boundary alignment counts: [('\nclass ', 2), ('\ndef ', 6), ('\n', 8)]
+  boundary[0] @ 60: ...AAAAAAAAAAAAAAAAAAAA\ndef AAAAAAAAAAAAAAA...
+  boundary[1] @ 125: ...AAAAAAAAAAAAAAAAAAAA\ndef AAAAAAAAAAAAAAA...
+  boundary[2] @ 190: ...AAAAAAAAAAAAAAAAAAAA\nclass BBBBBBBBBBBBB...
+
+=== Language: javascript ===
+Case: javascript | chunk_size=50 overlap=10
+Separators (15): ['\nfunction ', '\nconst ', '\nlet ', '\nvar ', '\nclass ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\ndefault ', '\n\n', '... (+3 more)']
+Chunks: 15
+Chunk lengths: [21, 22, 39, 29, 17, 1, 25, 38, 24, 25, 38, 10, 33, 30, 1]
+Adjacent overlaps (chars): [1, 0, 0, 0, 1, 0, 0, 5, 0, 0, 7, 0, 0, 0]
+  Chunk[0] start: '// A sample JS module'
+  Chunk[0] end  : '// A sample JS module'
+  Chunk[1] start: 'export class Greeter {'
+  Chunk[1] end  : 'export class Greeter {'
+  Chunk[2] start: 'constructor(name) { this.name = name; }'
+  Chunk[2] end  : 'constructor(name) { this.name = name; }'
+Overlap approx respected: False
+
+Case: javascript | chunk_size=100 overlap=20
+Separators (15): ['\nfunction ', '\nconst ', '\nlet ', '\nvar ', '\nclass ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\ndefault ', '\n\n', '... (+3 more)']
+Chunks: 7
+Chunk lengths: [52, 39, 57, 25, 57, 77, 84]
+Adjacent overlaps (chars): [0, 0, 0, 0, 0, 0]
+  Chunk[0] start: '// A sample JS module\n        export class Greeter {'
+  Chunk[0] end  : '// A sample JS module\n        export class Greeter {'
+  Chunk[1] start: 'constructor(name) { this.name = name; }'
+  Chunk[1] end  : 'constructor(name) { this.name = name; }'
+  Chunk[2] start: 'greet() { console.log(`Hello, ${this.name}`); }\n        }'
+  Chunk[2] end  : 'greet() { console.log(`Hello, ${this.name}`); }\n        }'
+Overlap approx respected: False
+
+Case: javascript | chunk_size=200 overlap=50
+Separators (15): ['\nfunction ', '\nconst ', '\nlet ', '\nvar ', '\nclass ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\ndefault ', '\n\n', '... (+3 more)']
+Chunks: 3
+Chunk lengths: [170, 181, 84]
+Adjacent overlaps (chars): [0, 0]
+  Chunk[0] start: '// A sample JS module\n        export class Greeter {\n       '
+  Chunk[0] end  : '   greet() { console.log(`Hello, ${this.name}`); }\n        }'
+  Chunk[1] start: 'function longFunction() {\n          const data = Array.from('
+  Chunk[1] end  : "in(',');\n          /* long block comment to force a split */"
+  Chunk[2] start: 'const info = `line\n`.repeat(200);\n          return s.length '
+  Chunk[2] end  : 'eat(200);\n          return s.length + info.length;\n        }'
+Overlap approx respected: False
+
+Priority Drill-Down
+Separators (head): ['\nfunction ', '\nconst ', '\nlet ', '\nvar ', '\nclass ', '\nif ']
+Top sep: '\nfunction ' (len=10) | Next: '\nconst ' (len=7)
+Chunk size=80, overlap=0
+s0-split part lengths: [194, 194, 194] (expect >> chunk_size)
+Produced 9 chunks; lengths: [60, 66, 66, 69, 66, 66, 69, 66, 66]
+Boundary alignment counts: [('\nfunction ', 2), ('\nconst ', 6), ('\n', 8)]
+  boundary[0] @ 60: ...AAAAAAAAAAAAAAAAAAAA\nconst AAAAAAAAAAAAA...
+  boundary[1] @ 127: ...AAAAAAAAAAAAAAAAAAAA\nconst AAAAAAAAAAAAA...
+  boundary[2] @ 194: ...AAAAAAAAAAAAAAAAAAAA\nfunction BBBBBBBBBB...
+
+=== Language: markdown ===
+Case: markdown | chunk_size=50 overlap=10
+Separators (9): ['\n#{1,6} ', '```\n', '\n\\*\\*\\*+\n', '\n---+\n', '\n___+\n', '\n\n', '\n', ' ', '']
+Chunks: 63
+Chunk lengths: [7, 44, 36, 29, 15, 48, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 47, 41]
+Adjacent overlaps (chars): [0, 0, 0, 0, 0, 5, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41, 41]
+  Chunk[0] start: '# Title'
+  Chunk[0] end  : '# Title'
+  Chunk[1] start: 'Paragraph one with some content and details.'
+  Chunk[1] end  : 'Paragraph one with some content and details.'
+  Chunk[2] start: '## Subheading\n\n- bullet 1\n- bullet 2'
+  Chunk[2] end  : '## Subheading\n\n- bullet 1\n- bullet 2'
+Overlap approx respected: False
+
+Case: markdown | chunk_size=100 overlap=20
+Separators (9): ['\n#{1,6} ', '```\n', '\n\\*\\*\\*+\n', '\n---+\n', '\n___+\n', '\n\n', '\n', ' ', '']
+Chunks: 34
+Chunk lengths: [53, 67, 15, 96, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]
+Adjacent overlaps (chars): [0, 0, 0, 53, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89, 89]
+  Chunk[0] start: '# Title\n\nParagraph one with some content and details.'
+  Chunk[0] end  : '# Title\n\nParagraph one with some content and details.'
+  Chunk[1] start: '## Subheading\n\n- bullet 1\n- bullet 2\n\n```python\ndef foo():\n '
+  Chunk[1] end  : 'eading\n\n- bullet 1\n- bullet 2\n\n```python\ndef foo():\n    pass'
+  Chunk[2] start: '```\n\nMore text.'
+  Chunk[2] end  : '```\n\nMore text.'
+Overlap approx respected: False
+
+Case: markdown | chunk_size=200 overlap=50
+Separators (9): ['\n#{1,6} ', '```\n', '\n\\*\\*\\*+\n', '\n---+\n', '\n___+\n', '\n\n', '\n', ' ', '']
+Chunks: 19
+Chunk lengths: [53, 67, 15, 198, 197, 197, 197, 197, 197, 197, 197, 197, 197, 197, 197, 197, 197, 197, 185]
+Adjacent overlaps (chars): [0, 0, 0, 155, 191, 191, 191, 191, 191, 191, 191, 191, 191, 191, 191, 191, 191, 179]
+  Chunk[0] start: '# Title\n\nParagraph one with some content and details.'
+  Chunk[0] end  : '# Title\n\nParagraph one with some content and details.'
+  Chunk[1] start: '## Subheading\n\n- bullet 1\n- bullet 2\n\n```python\ndef foo():\n '
+  Chunk[1] end  : 'eading\n\n- bullet 1\n- bullet 2\n\n```python\ndef foo():\n    pass'
+  Chunk[2] start: '```\n\nMore text.'
+  Chunk[2] end  : '```\n\nMore text.'
+Overlap approx respected: False
+
+Priority Drill-Down
+Separators (head): ['\n#{1,6} ', '```\n', '\n\\*\\*\\*+\n', '\n---+\n', '\n___+\n', '\n\n']
+Top sep: '\n#{1,6} ' (len=8) | Next: '```\n' (len=4)
+Chunk size=80, overlap=0
+s0-split part lengths: [188, 188, 188] (expect >> chunk_size)
+Produced 9 chunks; lengths: [60, 64, 64, 67, 64, 64, 67, 64, 64]
+Boundary alignment counts: [('\n#{1,6} ', 2), ('```\n', 6), ('\n', 2)]
+  boundary[0] @ 60: ...AAAAAAAAAAAAAAAAAAAA```\nAAAAAAAAAAAAAAAA...
+  boundary[1] @ 124: ...AAAAAAAAAAAAAAAAAAAA```\nAAAAAAAAAAAAAAAA...
+  boundary[2] @ 188: ...AAAAAAAAAAAAAAAAAAAA\n#{1,6} BBBBBBBBBBBB...
+
+=== Language: java ===
+Case: java | chunk_size=50 overlap=10
+Separators (14): ['\nclass ', '\npublic ', '\nprotected ', '\nprivate ', '\nstatic ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\n\n', '\n', '... (+2 more)']
+Chunks: 11
+Chunk lengths: [19, 47, 25, 47, 1, 40, 39, 29, 35, 40, 3]
+Adjacent overlaps (chars): [0, 0, 7, 1, 0, 0, 0, 9, 0, 1]
+  Chunk[0] start: '// Sample Java file'
+  Chunk[0] end  : '// Sample Java file'
+  Chunk[1] start: 'public class Example {\n    static class Inner {'
+  Chunk[1] end  : 'public class Example {\n    static class Inner {'
+  Chunk[2] start: 'void greet(String name) {'
+  Chunk[2] end  : 'void greet(String name) {'
+Overlap approx respected: False
+
+Case: java | chunk_size=100 overlap=20
+Separators (14): ['\nclass ', '\npublic ', '\nprotected ', '\nprivate ', '\nstatic ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\n\n', '\n', '... (+2 more)']
+Chunks: 6
+Chunk lengths: [19, 47, 71, 94, 55, 42]
+Adjacent overlaps (chars): [0, 0, 1, 0, 0]
+  Chunk[0] start: '// Sample Java file'
+  Chunk[0] end  : '// Sample Java file'
+  Chunk[1] start: 'public class Example {\n    static class Inner {'
+  Chunk[1] end  : 'public class Example {\n    static class Inner {'
+  Chunk[2] start: 'void greet(String name) { System.out.println("Hello, " + nam'
+  Chunk[2] end  : 'String name) { System.out.println("Hello, " + name); }\n    }'
+Overlap approx respected: False
+
+Case: java | chunk_size=200 overlap=50
+Separators (14): ['\nclass ', '\npublic ', '\nprotected ', '\nprivate ', '\nstatic ', '\nif ', '\nfor ', '\nwhile ', '\nswitch ', '\ncase ', '\n\n', '\n', '... (+2 more)']
+Chunks: 4
+Chunk lengths: [19, 172, 195, 42]
+Adjacent overlaps (chars): [0, 40, 34]
+  Chunk[0] start: '// Sample Java file'
+  Chunk[0] end  : '// Sample Java file'
+  Chunk[1] start: 'public class Example {\n    static class Inner {\n        void'
+  Chunk[1] end  : ' name); }\n    }\n    public static void main(String[] args) {'
+  Chunk[2] start: 'public static void main(String[] args) {\n        StringBuild'
+  Chunk[2] end  : 'd(i).append(",");\n        System.out.println(sb.toString());'
+Overlap approx respected: False
+
+Priority Drill-Down
+Separators (head): ['\nclass ', '\npublic ', '\nprotected ', '\nprivate ', '\nstatic ', '\nif ']
+Top sep: '\nclass ' (len=7) | Next: '\npublic ' (len=8)
+Chunk size=80, overlap=0
+s0-split part lengths: [196, 196, 196] (expect >> chunk_size)
+Produced 9 chunks; lengths: [60, 67, 67, 66, 67, 67, 66, 67, 67]
+Boundary alignment counts: [('\nclass ', 2), ('\npublic ', 6), ('\n', 8)]
+  boundary[0] @ 60: ...AAAAAAAAAAAAAAAAAAAA\npublic AAAAAAAAAAAA...
+  boundary[1] @ 128: ...AAAAAAAAAAAAAAAAAAAA\npublic AAAAAAAAAAAA...
+  boundary[2] @ 196: ...AAAAAAAAAAAAAAAAAAAA\nclass BBBBBBBBBBBBB...
+
+=== Language: go ===
+Case: go | chunk_size=50 overlap=10
+Separators (12): ['\nfunc ', '\nvar ', '\nconst ', '\ntype ', '\nif ', '\nfor ', '\nswitch ', '\ncase ', '\n\n', '\n', ' ', '']
+Chunks: 8
+Chunk lengths: [44, 35, 49, 12, 28, 35, 25, 24]
+Adjacent overlaps (chars): [0, 0, 2, 0, 0, 9, 0]
+  Chunk[0] start: '// Sample Go file\npackage main\n\nimport "fmt"'
+  Chunk[0] end  : '// Sample Go file\npackage main\n\nimport "fmt"'
+  Chunk[1] start: 'type Greeter struct { Name string }'
+  Chunk[1] end  : 'type Greeter struct { Name string }'
+  Chunk[2] start: 'func (g Greeter) Greet() { fmt.Println("Hello, ",'
+  Chunk[2] end  : 'func (g Greeter) Greet() { fmt.Println("Hello, ",'
+Overlap approx respected: False
+
+Case: go | chunk_size=100 overlap=20
+Separators (12): ['\nfunc ', '\nvar ', '\nconst ', '\ntype ', '\nif ', '\nfor ', '\nswitch ', '\ncase ', '\n\n', '\n', ' ', '']
+Chunks: 4
+Chunk lengths: [81, 59, 84, 24]
+Adjacent overlaps (chars): [0, 0, 0]
+  Chunk[0] start: '// Sample Go file\npackage main\n\nimport "fmt"\n\ntype Greeter s'
+  Chunk[0] end  : 'kage main\n\nimport "fmt"\n\ntype Greeter struct { Name string }'
+  Chunk[1] start: 'func (g Greeter) Greet() { fmt.Println("Hello, ", g.Name) }'
+  Chunk[1] end  : 'func (g Greeter) Greet() { fmt.Println("Hello, ", g.Name) }'
+  Chunk[2] start: 'func main() {\n    data := ""\n    for i := 0; i < 1000; i++ {'
+  Chunk[2] end  : '= ""\n    for i := 0; i < 1000; i++ { data += fmt.Sprint(i) }'
+Overlap approx respected: False
+
+Case: go | chunk_size=200 overlap=50
+Separators (12): ['\nfunc ', '\nvar ', '\nconst ', '\ntype ', '\nif ', '\nfor ', '\nswitch ', '\ncase ', '\n\n', '\n', ' ', '']
+Chunks: 2
+Chunk lengths: [142, 113]
+Adjacent overlaps (chars): [0]
+  Chunk[0] start: '// Sample Go file\npackage main\n\nimport "fmt"\n\ntype Greeter s'
+  Chunk[0] end  : '\nfunc (g Greeter) Greet() { fmt.Println("Hello, ", g.Name) }'
+  Chunk[1] start: 'func main() {\n    data := ""\n    for i := 0; i < 1000; i++ {'
+  Chunk[1] end  : '; i++ { data += fmt.Sprint(i) }\n    fmt.Println(len(data))\n}'
+Overlap approx respected: False
+
+Priority Drill-Down
+Separators (head): ['\nfunc ', '\nvar ', '\nconst ', '\ntype ', '\nif ', '\nfor ']
+Top sep: '\nfunc ' (len=6) | Next: '\nvar ' (len=5)
+Chunk size=80, overlap=0
+s0-split part lengths: [190, 190, 190] (expect >> chunk_size)
+Produced 9 chunks; lengths: [60, 64, 64, 65, 64, 64, 65, 64, 64]
+Boundary alignment counts: [('\nfunc ', 2), ('\nvar ', 6), ('\n', 8)]
+  boundary[0] @ 60: ...AAAAAAAAAAAAAAAAAAAA\nvar AAAAAAAAAAAAAAA...
+  boundary[1] @ 125: ...AAAAAAAAAAAAAAAAAAAA\nvar AAAAAAAAAAAAAAA...
+  boundary[2] @ 190: ...AAAAAAAAAAAAAAAAAAAA\nfunc BBBBBBBBBBBBBB...
