@@ -10,14 +10,14 @@ Headline Metrics (current results)
 - Average across datasets:
   - Best F1: packed 5.5k (0.3348)
   - Best Precision: packed_fixed 25k (0.5495)
-  - Best Recall: packed_fixed 1k (0.3875)
+  - Best Recall: packed_fixed 1k (0.3913)
   - Fastest: packed 6.5k (~93.06s)
 - Validation Benchmarks:
-  - Best F1: packed 5.5k (0.4675); Best Precision: project (0.6923); Best Recall: syntactic 3k (0.5385); Fastest: packed 5.5k (~55.44s)
+  - Best F1: packed 5.5k (ties packed 23k) at 0.4675; Best Precision: project (0.6923); Best Recall: syntactic 3k (0.5385); Fastest: packed 5.5k (~55.44s)
 - Juice Shop:
-  - Best F1: fixed_token 20k (0.2687); Best Precision: packed_fixed 25k (0.5); Fastest: packed_fixed 20k (~99.50s)
+  - Best F1: packed_fixed 12k (0.2933); Best Precision: packed_fixed 25k (0.5); Fastest: packed_fixed 20k (~99.50s)
 - Verademo:
-  - Best F1: packed_fixed 13k (0.3363); Best Precision: packed 30k (0.6471); Best Recall: packed_fixed 4k (0.4038); Fastest: packed_fixed 15k (~77.94s)
+  - Best F1: packed_fixed 13k (0.3363); Best Precision: packed 30k (0.6471); Best Recall: packed_fixed 4k (0.4151); Fastest: packed_fixed 15k (~77.94s)
 
 Interpretation
 - Context sufficiency vs. dilution: mid‑sized packed (≈5.5–7k tokens) balances signal and noise; very large contexts tend to reduce recall despite improved precision.

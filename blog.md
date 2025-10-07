@@ -114,24 +114,24 @@ Note on very large contexts: We plan to revisit the largest chunk sizes after a 
 - Average across datasets:
   - Best F1: `packed 5.5k` at 0.3348
   - Best Precision: `packed_fixed 25k` at 0.5495
-  - Best Recall: `packed_fixed 1k` at 0.3875
+  - Best Recall: `packed_fixed 1k` at 0.3913
   - Speed: `packed 6.5k` is fastest at 93.06s average; `project` runs in 192.25s; `file` in 197.55s
   - Large‑budget trade‑off: large packed/packed_fixed sizes boost precision (up to 0.5495 with `packed_fixed 25k`) while recall and F1 vary by dataset.
 
 - repos/validation-benchmarks:
-  - Best F1: `packed 5.5k` at 0.4675
+  - Best F1: `packed 5.5k` (ties `packed 23k`) at 0.4675
   - Best Precision: `project` at 0.6923; trade-off with low recall 0.1765
   - Best Recall: `syntactic 3k` at 0.5385
 
 - repos/juice-shop:
-  - Best F1: `fixed_token 20k` at 0.2687
+  - Best F1: `packed_fixed 12k` at 0.2933
   - Best Precision: `packed_fixed 25k` at 0.5
   - Fastest: `packed_fixed 20k` at 99.50s
 
 - repos/verademo:
   - Best F1: `packed_fixed 13k` at 0.3363
   - Best Precision: `packed 30k` at 0.6471
-  - Best Recall: `packed_fixed 4k` at 0.4038
+  - Best Recall: `packed_fixed 4k` at 0.4151
   - Fastest: `packed_fixed 15k` at 77.94s
 
 ### **Dataset Behavior**
