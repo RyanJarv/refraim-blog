@@ -147,47 +147,32 @@ We measured:
 * **F1-Score** – harmonic mean of precision and recall  
 * **Processing Time** – average total processing time per configuration
 
-Comparator summary and limitations: Matching requires the same vulnerability `type` and at least one overlapping file, then selects the a match based on a combination of semantically matching the vulnerability description and code embeddings of the vulnerable snippet.
-
-Un-Scanned Lines Correction: False negatives fully inside unscanned spans are excluded from recall to mitigate any noticable performance drop in the results, this is done to make it possible to understand the expected results when this issue is fixed in a future version of fraim.
-
-Precision scope: Because benchmarks scan only baseline‑referenced files, precision here reflects noise within vulnerable files and will differ from full‑repo precision which may contain additional context and information critical to understanding the threat-model.
-
 ## **Results and Analysis**
 
 Numbers reflect fraim v0.5.1 and mirror `results/results.md` and `results/*.html`.
 
 Note on very large contexts: We plan to revisit the largest chunk sizes after a fix to skipped‑lines handling lands in a future fraim version. Some higher chunk‑size configurations may shift once that change is in place.
 
-Key Finding
-- Mid‑sized packed context (5.5–7k tokens) delivers the best balance of accuracy and speed on average (best F1 0.3348). Larger contexts increase precision but reduce recall.
-
-TL;DR
-- Default: use `packed 5.5–7k` for best average F1 and strong speed.
-- Precision‑first: use `packed_fixed 25–30k` (accept lower recall).
-- Recall‑first: use `packed_fixed 1–4k` (accept lower precision; triage recommended).
-- Speed on small/medium repos: consider `project` when memory permits.
-
 Caveats (read with the numbers)
 - Scan scope: only baseline‑referenced vulnerable files; precision reflects within‑file noise.
 - Skipped lines: spans excluded from recall; reported separately; fix is planned.
 - Matching: same vuln type + overlapping file; best semantic match on text/snippet.
+- Triage: disabled in these benchmarks; enabling it typically converts some approximate hypotheses into true positives, improving recall in practice.
 
 Method Labels Guide
 - `project` (whole repo), `module` (package group), `file` (per‑file), `original_*` (line‑based), `syntactic_*` (language‑aware), `fixed_token_*` (deterministic overlap), `packed` (packs whole files; splits oversized with syntactic), `packed_fixed` (splits oversized with fixed_token).
 
-Quick Picks (Goal → Recommendation → Why → Caveat)
-- Best average F1 → `packed 5.5–7k` → Balanced precision/recall → Mid‑size only.
-- Highest precision → `packed_fixed 25–30k` → Fewer false positives → Lower recall.
-- Highest recall → `packed_fixed 1–4k` → More hits → Noisier; triage later.
-- Fastest overall → `packed 6.5k` → Lowest average time (≈93.06s) → Dataset‑dependent.
-- Small/medium repo speed → `project` → Whole‑repo context → Memory/cost trade‑off.
-- Very large single file → `fixed_token` base → Deterministic overlap → Weaker structure.
+### Overall Best
 
-Decision Flow (text)
-- Is speed critical? → Yes → `project`; No → Continue
-- Very large single file? → Yes → `fixed_token` base; No → Continue
-- Need max precision? → Yes → `packed_fixed 25–30k`; No → Default: `packed 5.5–7k`
+| Goal | Recommendation | Why | Trade‑off |
+| --- | --- | --- | --- |
+| Best overall balance | `packed 5.5–7k` | Best avg F1 and solid speed | Mid‑size only |
+| Highest precision | `project` | Fewest false positives on small/medium repos; no skipped‑lines | Memory/cost; repo must fit |
+| Highest recall | `packed_fixed 1–4k` | More hits found | Noisier; triage recommended |
+| Fastest overall | `packed 6.5k` | Lowest avg time (~93.06s) | Dataset dependent |
+| Small/medium repo speed | `project` | Whole‑repo context | Memory/cost limits |
+| Very large single files | `fixed_token` base | Predictable overlap | Structure not preserved |
+
 
 Performance Dashboard (visual idea)
 - Option A: scatter (F1 vs Processing Time) highlighting `packed 5.5k` and `project`.
@@ -195,7 +180,7 @@ Performance Dashboard (visual idea)
 
 Visuals legend: “Right/up is better; larger bubble = tokens; color = method; hollow markers = recall‑first picks.”
 
-### At‑a‑Glance Summary Table
+### Best By Dataset
 
 | Dataset | Best F1 | Best Precision | Best Recall | Fastest | Recommendation |
 | --- | --- | --- | --- | --- | --- |
@@ -204,15 +189,6 @@ Visuals legend: “Right/up is better; larger bubble = tokens; color = method; h
 | Juice Shop | `packed_fixed 12k` (0.2933) | `packed_fixed 25k` (0.5) | `fixed_token 1k` (0.2766) | `packed_fixed 20k` (99.50s) | Use packed_fixed mid/large; avoid extremes |
 | Verademo | `packed_fixed 13k` (0.3363) | `packed 30k` (0.6471) | `packed_fixed 4k` (0.4151) | `packed_fixed 15k` (77.94s) | Start at packed_fixed ~13k |
 | Generated | `packed 3k` (0.8) | `packed 3k` (0.6667) | `project` (1.0) | `original 0.7k` (16.16s) | Sanity check; don’t over‑weight |
-
-Reports
-- Average Across Datasets: `results/average.html`
-- Validation Benchmarks: `results/repos.validation-benchmarks.html`
-- Juice Shop: `results/repos.juice-shop.html`
-- Verademo: `results/repos.verademo.html`
-- Generated: `results/generated.html`
-
-If your viewer supports inline HTML, you can also explore the interactive reports below. Otherwise, use the report links above.
 
 <!-- INSERT: Performance Dashboard (Average Across Datasets) — inline HTML from results -->
 <!-- INSERT: Interactive Report — results/average.html -->
@@ -223,94 +199,58 @@ If your viewer supports inline HTML, you can also explore the interactive report
 
 <!-- INSERT: Interactive Report — results/repos.verademo.html -->
 
-### Strategy Comparison
+Note on precision picks: While some datasets show highest precision at very large packed sizes (e.g., 25–30k), we are not recommending those configurations until a skipped‑lines handling fix lands. Prefer `project` for precision on small/medium repos; retest large packed sizes after the fix.
 
-- Packed (recommended default)
-  - Sweet spot: 5.5–7k (F1 0.3348). Trade‑off: 25–30k boosts precision (~0.55) with lower recall.
-  - When to use: start here for most codebases.
-- Project (speed‑optimized on small/medium repos)
-  - Performance: compares closely to large packed; often faster (≈192.25s avg).
-  - When to use: speed matters and memory permits.
-- Fixed‑token base (fallback for very large single files)
-  - Strength: deterministic overlap; predictable splits when one file exceeds budget.
-  - When to use: very large single files or when syntactic splitting is unreliable.
-- Syntactic (language‑aware)
-  - Note: tracks fixed‑size; can underperform slightly; overlap not always enforced.
-  - When to use: prefer boundary preservation when splitters are accurate.
+### About The Results
 
-### Key Patterns (why these results matter)
+With the winners and graphs in view, here’s why these patterns emerge and how to apply them.
 
-- Larger contexts raise precision but reduce recall; smaller contexts invert that trade‑off.
-- `packed 5.5–7k` is the best default on average; `packed_fixed ~13k` edges Verademo.
-- `packed_fixed 25–30k` yields the highest precision on average; expect lower recall.
-- `project` compares with large `packed` on some datasets and often runs faster.
-- For single files exceeding the budget, prefer `fixed_token` for predictable overlap.
+Note: These benchmarks reflect the hypothesis‑generation stage (possible vulnerabilities) with triage disabled; in real runs, triage confirms/deduplicates and often converts approximate hypotheses into true positives, improving recall.
 
-### Dataset Notes
+* The signal vs. noise trade‑off
 
-- Validation Benchmarks: best F1 ties `packed 5.5k` and `packed 23k` (0.4675); precision rises with size; recall falls.
-- Juice Shop: cross‑file vulnerabilities made small chunks unreliable; very large contexts mixed tests and prod, diluting recall.
-- Verademo: mirrors Juice Shop trends; `packed_fixed 13k` edges best F1.
-- Generated: near‑perfect by construction—good sanity check but not used to guide conclusions.
+  Larger contexts tend to raise precision but lower recall: with more surrounding code, the model has better clues to reject false alarms, but relevant signals can be diluted. Smaller contexts do the opposite: recall rises as more candidates get flagged, but precision drops. The mid‑sized packed sweet spot (≈5.5–7k) preserves enough local relationships without overwhelming the model, which is why it wins on average.
 
----
+* Cross‑file flows and boundary alignment
+
+  Many vulnerabilities span functions and files (e.g., user input source → transformations → sink). Very small chunks sever these paths and hurt recall. Very large chunks mix unrelated modules, tests, and vendor code, blunting recall by burying cues. Packing entire small files together keeps adjacency that helps the model follow flows without dragging in unrelated code.
+
+* Boundary reflow and critical context
+
+  Changing chunk sizes can reflow a file across calls and accidentally split key cues. Example: a 90‑line file at 30‑line chunks yields [1–30], [31–60], [61–90]; bumping to 45‑line chunks yields [1–45], [46–90]. If the critical evidence sits around lines 31–60, the larger setting now straddles two calls, lowering recall even though the chunk grew. This boundary effect explains some of the “non‑monotonic” wiggles you see when F1 doesn’t steadily improve with size.
+
+* Why packed works well
+
+  Packed keeps files whole and fills the window efficiently, only splitting when necessary. This maintains coherent, human‑like review units (files and their immediate neighbors). As more relevant code is packed together (beyond single‑file limits), the model tends to make fewer—but more accurate—hypotheses, boosting precision while holding F1 steady.
+
+* Why project can be fast (and competitive)
+
+  On small/medium repos, whole‑repo context creates natural proximity between related code without chunking overhead, often running faster with accuracy comparable to large packed sizes. The trade‑off is memory/cost; it doesn’t scale well on big repos.
+
+* Why fixed‑token helps with very large single files
+  When a single file exceeds the window, deterministic overlap can help preserve context across boundaries, improving recall over naïve splits. It’s a practical fallback for monolith files where preserving cross‑boundary flow matters more than perfect syntactic boundaries.
+  This particularly applies to non‑structured signals in the code (complexity, naming, comments, “code smell”), which helps explain why fixed‑token sometimes outperformed syntactic chunking.
+
+* Why syntactic didn’t stand out (from earlier exploration)
+
+  Two factors likely contributed:
+  - Overlap reliability: the language‑aware splitter we used (LangChain’s RecursiveCharacterTextSplitter) doesn’t reliably enforce overlap, so cues can be split across boundaries.
+  - Non‑structured cues drive early hypotheses: at this stage we aren’t confirming vulnerabilities, we’re generating plausible candidates to follow up in triage. LLMs lean on signals that aren’t tightly bound to AST units—function and variable names, inline comments, docstrings/documentation, and general “code‑smell” (e.g., undue complexity, awkward patterns, inconsistent naming, missing comments). This mirrors how human reviewers start with threat‑model and intent rather than deep control‑flow. Because these cues span or ignore strict syntax boundaries, preserving whole files and predictable overlap often matters more than perfect syntactic splits. In our runs, that helps explain why syntactic tracked fixed‑size and sometimes underperformed.
+
+### Practical takeaways
+
+* Balanced default: use `packed 5.5–7k`.
+* Precision‑first: use `project` (when the repo fits); we are not recommending very large packed sizes until the skipped‑lines fix lands.
+* Recall‑first: consider `1–4k` chunks and lean on triage later.
+* Huge single file: use fixed‑token overlap to avoid severing key flows.
+
 
 ## **Conclusion: The Future of Context in AI Security**
 
-Our experiments confirm both sides of the tension:
+Our results point to a simple truth: the right context beats more context. Mid‑sized packed windows around 5.5–7k tokens consistently balance accuracy and speed, while very large inputs raise measured precision but often hurt recall through dilution and “lost‑in‑the‑middle.” Tiny chunks miss the bigger picture. While on small or medium repositories, a project‑wide view can match large packed runs and often finish faster. Interestingly, syntactic splitting did not outperform fixed‑size with more predictable overlap; keeping files intact with predictable overlap helped more than perfect boundaries. 
 
-* **Yes, LLMs lose accuracy when fed too much code**. Beyond a certain point, additional context dilutes the signal and reduces recall.  
-* **Yes, LLMs also miss vulnerabilities without enough context**. Small snippets alone often don’t provide the information needed to recognize flaws.
+Going forward, it seems likely that best approach when it comes to more advanced chunkers, is using both a hybrid and adaptive approach. Tracking important unstructured-data like the projects threat-model, important comments, and the purpose or intent of the code. For structured data, AST parsing can then allow building a simple map of the code—imports, calls, and shared names—and packs nearby, related pieces together so the model sees the evidence that belongs together without extra noise. Tracking how this data is related together may also give us additional insights on what effect specific information has on the results.
 
-False positives from small chunks can be filtered out during triage, but false negatives from insufficient context are lost forever. This makes recall-critical scenarios especially sensitive to under-chunking.
+With a better understanding of how various datasets are affected, we may be able to adjust the approach at runtime depending on the results of profiling the code. With our current results this might be: project‑like packing for small repos, mid‑size packed windows for larger ones, and fixed‑overlap for monolithic files. While this may not make significant impact at the moment, it seems likely the differences will become more apparent as this process is optimized. When the model is unsure about a finding, it may expand context locally along the code graph instead of making chunk sizes bigger.
 
-The best default today is **packed chunking**, with sizes around 5.5–7k tokens performing strongly across datasets and larger sizes (e.g., 25–30k packed_fixed) delivering the highest precision on average. That said, the **project** strategy now compares closely with large packed configurations while running faster in some cases, making it a pragmatic option when accuracy and speed both matter. The bigger lesson is that **context quality matters more than size**. More tokens aren’t always better if they introduce irrelevant code.
-
-The future likely lies in adaptive chunking—strategies that dynamically choose context size based on repository scale, file structure, and the vulnerabilities being sought. This way, both questions can be balanced intelligently rather than forced into a one‑size‑fits‑all approach.
-
----
-
-## **Model and Reproducibility**
-
-Benchmarks used the default model `gemini/gemini-2.5-flash`.
-
-> Warning: Benchmarks with `--times 3` issue multiple API calls and can incur non‑trivial cost at larger chunk sizes. Consider rate limits and estimate spend as `calls × tokens × price_per_1k`.
-
-To reproduce the results and regenerate graphs:
-
-- Install deps and set your API key:
-
-  ```bash
-  uv sync --dev
-  export GEMINI_API_KEY=... # or GOOGLE_API_KEY
-  ```
-
-- Run benchmarks (3 runs per configuration by default):
-
-  ```bash
-  uv run refraim benchmark run --times 3
-  ```
-
-- Optionally limit datasets:
-
-  ```bash
-  uv run refraim benchmark run --times 3 --datasets repos/juice-shop repos/verademo generated/*
-  ```
-
-- Render graphs and summaries (paths are relative to your current working directory):
-
-  ```bash
-  # From repo root
-  uv run refraim benchmark graph --output-dir blog/results
-
-  # From inside blog/
-  uv run refraim benchmark graph --output-dir results
-  ```
-
-Notes
-- Results reflect fraim v0.5.1; numbers mirror `results/results.md` and `results/*.html`.
-- Processing times are environment‑dependent and serve as relative comparisons.
-- Triage was disabled here; enabling it typically converts some approximate hypotheses into true positives, improving recall in practice.
-- Precision reflects within‑file noise because only baseline‑referenced files are scanned; full‑repo precision can differ.
-
-Limitations reminder: These benchmarks scan only baseline‑referenced vulnerable files with triage disabled; precision reflects within‑file noise, recall excludes unscanned spans, and matching weights semantic message/explanation similarity.
+In the shorter term, we will make packed ~5.5–7k the default strategy in fraim. After the skipped‑lines issue is fixed we can retest the higher precision options seen in these results, potentially allowing for the user to prefer either recall or precision. Regardless of what options are chosen later on these tests will serve to help determining the ideal size and splitting methods for fraim.

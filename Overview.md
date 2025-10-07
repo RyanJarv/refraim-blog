@@ -140,8 +140,8 @@ The audience will likely be security professionals, developers, and perhaps othe
   * It’s difficult to understand the behavior of a function when you only have half of it.  
 * **Actual Results**  
   * Syntactic chunking provided no benefits over fixed-sized and original.  
-  * Based on this we can assume that hypothesizing about vulnerabilities has little relation to the code structure, and that performance is largely based on the non-structured info found in a code base.  
-    * This makes sense when you consider how code is reviewed manually, you don’t start with reading the code in-depth. The threat model and code smell play a far more important role in early analysis.
+  * Based on this we can assume that hypothesizing about vulnerabilities has little relation to the code structure, and that performance is largely based on the non‑structured info found in a code base.  
+    * This makes sense when you consider how code is reviewed manually: you don’t start with deep reading of control‑flow; threat model and “code smell” guide early analysis. In practice, function/variable names, comments, docstrings, and general code‑quality signals (complexity, awkward patterns, inconsistent naming, missing comments) appear to drive hypothesis quality more than strict AST boundaries.
 
 ### **5\. Methodology: Testing Chunking Strategies with refraim**
 
