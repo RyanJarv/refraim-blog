@@ -12,12 +12,17 @@ This folder supports the blog post in `blog.md`. It documents how to refresh ben
 - refraim background: `./code/refraim/AGENT.md`
 - Blog overview (canonical outline): `Overview.md`
 - Current draft: `blog.md`
+- Style guide (mandatory for all writing): `./STYLE.md`
 - Process and internals: `info/process.md`
 - Conversations and decisions: `info/slack.md` (team Slack excerpts about the blog’s scope, chunkers, and workflow)
 - Datasets and traits: `datasets.md`
 - Syntactic splitting probe: `info/syntactic_splitting.txt` (shows overlap behavior; useful caveats)
 - Recent summary tables: `results/results.md` and the per‑dataset HTML files in `results/`
 - Canonical analysis details: `info/analysis.md` (basis for “Results and Analysis” in the blog)
+- Deep dives on chunking (source material for “Exploring Chunking Strategies”):
+  - `info/AI Chunking for Vulnerability Scanning.md`
+  - `info/Code Chunking in AI Tools.md`
+  - `info/AI Code Analysis Chunking Effects.md`
 
 ## Folder Layout
 - `blog.md` — draft post
@@ -40,6 +45,7 @@ Details omitted here. Use the CLI help and repo documentation to run benchmarks 
 
 ## Structure Conventions (follow the Overview)
 - Source of truth for outline: `Overview.md`.
+- Writing style and formatting must follow `./STYLE.md`. Do not copy content from the style guide into other files; link to it instead.
 - Maintain the Overview’s structure unless the user explicitly approves a change. If a change is approved, update the Overview doc accordingly so future work stays aligned.
 - Section intent:
   - “Exploring Chunking Strategies”: describe how each chunker works and state the hypothesis/expected effects (no detailed results here beyond light qualitative context). Avoid hard metrics in this section.
@@ -93,21 +99,11 @@ Chunking methods (mechanics and intent)
 - packed: File‑boundary‑aware packing to efficiently fill token budget; splits a file only if it exceeds `chunk_size` (then uses syntactic for that file).
 - packed_fixed: Same packing rule; splits oversized file with fixed_token.
 
-Testing & CLI workflow
-- Benchmarks run fraim against datasets with triage disabled; scan only baseline‑referenced files.
-- Metrics: precision, recall, F1, processing time, skipped lines (unscanned spans excluded from recall).
-- Comparator: match on `properties.type` + at least one overlapping file, then semantic similarity over message/explanation; one expected can match at most once.
-
 Observed patterns (latest results)
 - Mid‑sized packed (≈7k tokens) yields the best average F1; larger packed sizes raise precision but reduce recall.
 - Project compares closely with large packed sizes on average and can be faster; dataset‑dependent on large, clustered repos.
 - Syntactic tracks fixed‑size and sometimes underperforms slightly; overlap not reliably enforced by the splitter.
 - Generated suites validate the pipeline but are not decision drivers.
-
-Future work
-- Module‑scoped chunker (package‑level “project”).
-- AST/embedded chunking (tree‑sitter + embeddings) for semantic retrieval.
-- Adaptive/recursive strategies combining methods.
 
 ## Finishing Checklist
 - Fill any incomplete sections in `blog.md` (e.g., “Project (Baseline)”).
@@ -122,8 +118,65 @@ Future work
 ## Units
 - All chunkers use token budgets except `original`, which uses line counts. Keep labels explicit in text and figures; do not imply character‑based sizing.
 
-## TODO Tracking (blog/TODO.md)
-- Purpose: Capture a small set of important, high‑level goals that improve or complete `blog.md` but won’t be addressed immediately.
-- Keep it brief and stable. Do not track granular edits or maintain a running checklist.
-- Use it for directional items (e.g., “clarify units policy in figures,” “revisit largest chunk sizes after skipped‑lines fix”).
-- Update it only when major direction changes or after substantial new results; otherwise leave as‑is.
+## Chunking Deep Dives: Quick Index
+
+Use these sections when drafting “Exploring Chunking Strategies” and supporting claims. Prefer quoting/condensing from these headings.
+
+- From `info/AI Chunking for Vulnerability Scanning.md`
+  - Introduction: Critical role of preprocessing (context framing)
+  - Foundational Chunking Strategies: Speed and Simplicity vs. Contextual Integrity
+    - A. Fixed-Size Chunking — mechanism, benefits, drawbacks, when to use
+    - B. Sliding Window Chunking — mechanism, benefits, drawbacks, when to use
+    - C. Recursive Chunking — mechanism, benefits, drawbacks, when to use
+  - Structure-Aware Chunking: The Key to High-Fidelity Analysis
+    - A. Semantic/Content-Aware (AST-Based) — mechanism, benefits, drawbacks, when to use
+    - B. Embedding-Based — mechanism, benefits, drawbacks, when to use
+  - The Autonomous Frontier: Agentic Chunking — mechanism and potential, benefits, drawbacks, when to use
+  - Synthesis, Recommendations, and Hybrid Models — comparative framework, strategic guidance, hybrid multi-pass architecture, future trajectory
+
+- From `info/Code Chunking in AI Tools.md`
+  - Part I: Foundational Principles — the unique challenge of code; taxonomy of chunking strategies
+  - Part II: Competitive Analysis — how tools chunk today
+    - RAG Vanguard (Tabnine; Amazon CodeWhisperer customization)
+    - Semantic Gold Standard (AST-driven: CodeRabbit; Semgrep)
+    - Security Specialist (Snyk Code)
+    - Dynamic Context and Massive Windows (GitHub Copilot; Cursor)
+    - External API Model (Checkmarx)
+  - Part III: Architectural Divide — privacy, security, and control; MCP servers
+  - Part IV: Synthesis and Recommendations — comparative framework; use‑case dependent guidance; future trajectories
+
+- From `info/AI Code Analysis Chunking Effects.md`
+  - I. Strategic Imperative: Why Granularity Defines Code Analysis Success
+    - A. Contextual Limitations of LLMs — context windows, lost‑in‑the‑middle, cost, information density
+    - B. RAG in Code Analysis — role of chunking; code‑specific constraints
+  - II. Taxonomy of Chunking Strategies in Code Analysis
+    - A. Naive and Character‑Based — fixed‑size, recursive; limitations for code
+    - B. Structural and Syntax‑Aware — function/class segmentation; AST‑based
+    - C. Semantic and Hybrid Chunking — blended approaches
+  - III. The Critical Dimension of Chunk Size: Accuracy vs. Context
+    - A. Trade‑off Model — precision vs. context retention
+      - Small Chunks — high precision, low context
+      - Large Chunks — high context, lower precision
+    - B. Empirical Insights on Optimal Size — observed sweet spots
+  - IV. Advanced Architectures for Context Retrieval
+    - A. Hierarchical Retrieval (Parent‑Child) — mechanism and application in code
+    - B. Repository‑Level Context Management — agentic context management (non‑RAG)
+  - V. Quantitative Performance Analysis and Benchmarking
+    - A. Metrics for Code Analysis RAG Pipelines — precision, recall, F1, etc.
+    - B. Comparative Performance of Structural Chunking — cAST gains; FuncVul improvements
+  - VI. Operational and Economic Considerations
+    - A. Cost Modeling — indexing vs. inference; token economics
+    - B. Optimization via Context Engineering — combine targeted RAG with long‑context LLMs
+  - VII. Conclusion and Strategic Recommendations
+    - A. Synthesis of optimal strategies for Code RAG
+    - B. Decision framework for chunking strategy selection
+    - C. Evaluation and ongoing optimization; works cited
+
+## Process Related 
+
+* [TODO Tracking](blog/TODO.md)
+
+Testing & CLI workflow
+- Benchmarks run fraim against datasets with triage disabled; scan only baseline‑referenced files.
+- Metrics: precision, recall, F1, processing time, skipped lines (unscanned spans excluded from recall).
+- Comparator: match on `properties.type` + at least one overlapping file, then semantic similarity over message/explanation; one expected can match at most once.

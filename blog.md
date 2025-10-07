@@ -2,12 +2,11 @@
 
 ## **Introduction: The Challenge of Code Context in AI Security**
 
-Large Language Models (LLMs) are increasingly being applied to vulnerability scanning. Their effectiveness depends heavily on how much of the surrounding code context they can see. This raises two critical questions:
+LLMs are increasingly applied to application security. Effectiveness depends on the quality and amount of code context the model receives in its prompt.
 
-1. **Does an LLM lose accuracy when fed too much code at once?** Current wisdom suggests that very large contexts dilute the model’s focus, leading to more missed detections.  
-2. **How much surrounding code does an LLM need to detect a vulnerability in the first place?** Too little context and the model may lack the signals to even spot a flaw.
+Two opposing forces shape accuracy in practice. Provide too much code and relevant signals get diluted—e.g., mixing tests and production files or many unrelated modules reduced recall in our Juice Shop experiments. Provide too little and the model misses necessary cues—e.g., a sink defined in one file and the input validation in another, or a subtle configuration that disables sanitization. This trade‑off also affects speed and cost: larger prompts are slower and more expensive, while smaller prompts risk false negatives.
 
-These questions pull in opposite directions. More context helps the model see important relationships, but too much unrelated code can overwhelm it. Our experiments benchmarked chunking strategies with these questions in mind—seeking the balance between enough context to catch vulnerabilities and not so much that the model becomes less effective.
+Our experiments benchmarked chunking strategies to find the balance: enough context to hypothesize vulnerabilities reliably without overwhelming the model or budgets. The results below quantify how different strategies and sizes shift precision, recall, runtime, and overall F1.
 
 ## **Our Approach: The AI-Powered Vulnerability Scanner**
 
