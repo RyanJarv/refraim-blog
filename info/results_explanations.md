@@ -9,25 +9,25 @@ Update (current results):
 
 Packed vs. Packed_Fixed — observed patterns (from results/results.md):
 - Average across datasets:
-  - Best F1: `packed 7k` = 0.3283 (vs. best `packed_fixed` 5k = 0.3134)
-  - Best Precision: `packed 30k` = 0.5115 (vs. `packed_fixed 13k` = 0.4136)
-  - Best Recall: `packed_fixed 1k` = 0.3875 (vs. `packed 1k` = 0.3721)
+  - Best F1: `packed 5.5k` = 0.3348 (vs. best `packed_fixed` 5k = 0.3134)
+  - Best Precision: `packed_fixed 25k` = 0.5495
+  - Best Recall: `packed_fixed 1k` = 0.3875 (vs. `packed 1k` = 0.3452)
 - Validation‑benchmarks:
-  - Best F1: `packed 7k` = 0.4318 (vs. `packed_fixed 7k` = 0.4138; `packed_fixed 5k` = 0.4045)
-  - Best Recall: `packed_fixed 1k` = 0.5385 (vs. `packed 1k` = 0.5)
-  - Best Precision: `packed 30k` = 0.6923; `project` = 0.6923
+  - Best F1: `packed 5.5k` = 0.4675 (vs. `packed_fixed 7k` = 0.4138; `packed_fixed 5k` = 0.4045)
+  - Best Recall: `syntactic 3k` = 0.5385
+  - Best Precision: `project` = 0.6923
 - Verademo:
-  - Best F1: `packed_fixed 13k` = 0.3363 (vs. `packed 13k` = 0.3214)
-  - Best Precision: `packed_fixed 13k` = 0.4222 (vs. `packed 13k` = 0.3913)
+  - Best F1: `packed_fixed 13k` = 0.3363
+  - Best Precision: `packed 30k` = 0.6471
   - Best Recall: `packed_fixed 4k` = 0.4038
 - Juice Shop:
-  - Best F1 overall: `fixed_token 20k` = 0.2687 (packed vs. packed_fixed are close in F1 around mid sizes; `packed 40k` yields highest precision 0.6 with reduced recall.)
+  - Best F1 overall: `fixed_token 20k` = 0.2687 (packed vs. packed_fixed are close in F1 around mid sizes; `packed_fixed 25k` yields highest precision 0.5 with reduced recall.)
 
 Takeaways:
 - When most files fit under the token budget, both packed variants behave similarly (full‑file packs). Differences appear when large files must be split before packing.
-- `packed` (syntactic base) tends to win on average and on validation‑benchmarks at mid sizes (~7k), and provides the strongest large‑budget precision.
+- `packed` (syntactic base) tends to win on average and on validation‑benchmarks at mid sizes (~5.5–7k), and provides strong large‑budget precision.
 - `packed_fixed` (fixed‑token base) tends to provide steadier recall at small windows and slightly better performance on `verademo` at ~13k, consistent with token‑predictable overlaps in same‑file‑clustered code.
-- Default guidance remains: start with `packed ~7k` for balanced F1 and speed; consider `packed_fixed ~13k` for verademo‑like same‑file clustering or prioritize small‑window recall (`packed_fixed 1k`).
+- Default guidance remains: start with `packed ~5.5–7k` for balanced F1 and speed; consider `packed_fixed ~13k` for verademo‑like same‑file clustering or prioritize small‑window recall (`packed_fixed 1k`).
 
 Note: The following historical explanation section remains for context from earlier runs and focuses on why certain mid‑size single‑file strategies scored well. Some concrete figures below refer to a prior run and may differ from the current tables.
 
@@ -60,7 +60,7 @@ Why the same pattern appears:
 
 **Takeaways (earlier run)**
 - Elevated scores align with dataset structure (single‑file or file‑centric cases) and the benchmark’s “vulnerable files only” scope.
-- Mid‑sized, single‑chunk‑per‑file strategies (original 1.3k, syntactic 6k, fixed_token 6k) can be strong on some runs; current results favor `packed ~7k` overall with `packed_fixed` better on verademo at ~13k.
+- Mid‑sized, single‑chunk‑per‑file strategies (original 1.3k, syntactic 6k, fixed_token 6k) can be strong on some runs; current results favor `packed ~5.5–7k` overall with `packed_fixed` better on verademo at ~13k.
 
 **Recent Changes Audit**
 - Added configs to default sweep: `original 1.3k`, `syntactic 6k`, `fixed_token 6k` (src/refraim_cli/benchmark.py:166, src/refraim_cli/benchmark.py:168, src/refraim_cli/benchmark.py:178). This surfaced their (legitimate) strong performance; it did not alter how they work.
@@ -70,4 +70,4 @@ Why the same pattern appears:
   - Reuse expected keys for TP aggregation (src/refraim/sarif/compare.py:123–131), best‑match selection by type+any file overlap (src/refraim/sarif/compare.py:182–208), and correct skipped‑lines accounting (src/refraim/lib/_results.py:191).
 - No chunker logic was changed here; chunkers run via the external `fraim` CLI. Nothing in this repo targets only `original 1.3k`, `syntactic 6k`, or `fixed_token 6k` beyond adding them to the test list.
 
-Conclusion (updated): No recent code changes uniquely favor only the mid‑size single‑file strategies. The current bests mainly reflect dataset structure, packing behavior at mid sizes (~7k), and the split‑base differences (syntactic vs fixed‑token) when handling long files.
+Conclusion (updated): No recent code changes uniquely favor only the mid‑size single‑file strategies. The current bests mainly reflect dataset structure, packing behavior at mid sizes (~5.5–7k), and the split‑base differences (syntactic vs fixed‑token) when handling long files.

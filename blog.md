@@ -104,8 +104,8 @@ Note on very large contexts: We plan to revisit the largest chunk sizes after a 
 
 ### **Method-Specific Insights**
 
-- Project: Competitive accuracy/speed trade-off versus large packed sizes; particularly strong on validation-benchmarks where F1 ties `packed 30k` and runs faster. Performance varies with repo scale and clustering. When to use: small/medium repos where speed matters and memory permits whole‑project or near‑project inputs.
-- Packed: Best average F1 at mid sizes (e.g., 7k); larger sizes increase precision but reduce recall; efficient use of token budget by packing whole files. When to use: strong default (start around ~7k tokens); prefer larger sizes when precision is prioritized over recall.
+- Project: Competitive accuracy/speed trade-off versus large packed sizes. On validation-benchmarks it achieves the highest precision (0.6923) but with lower recall; performance varies with repo scale and clustering. When to use: small/medium repos where speed matters and memory permits whole‑project or near‑project inputs.
+- Packed: Best average F1 at mid sizes (≈5.5–7k). Larger sizes increase precision but reduce recall; efficient use of token budget by packing whole files. When to use: strong default (start around ~5.5–7k tokens); prefer larger sizes when precision is prioritized over recall.
 - Fixed-size: Results do not form a smooth curve across sizes; as chunk sizes change, critical context falls in/out of boundaries and many files are smaller than large sizes, yielding step-changes and plateaus. A competitive band emerges around mid sizes. When to use: benchmarking to probe size sensitivity; very large single files when semantic splitting is unavailable.
 - Syntactic (language-aware): Tracked fixed-size and sometimes underperformed slightly. Likely because hypothesis generation can rely on non‑structured signals (names, comments) even when functions split. Note: requested `chunk_overlap` is not reliably enforced by the splitter, making syntactic less predictable. Fixed_token is slightly more predictable because overlap is applied deterministically. When to use: when preserving function/class boundaries is desirable and language splitters are accurate enough; expect parity with fixed‑token otherwise.
 - Triage impact: With triage enabled, approximate hypotheses often become true positives, increasing recall relative to these no‑triage benchmarks.
@@ -113,33 +113,32 @@ Note on very large contexts: We plan to revisit the largest chunk sizes after a 
 ### **Method Highlights (Current Results)**
 
 - Average across datasets:
-  - Best F1: `packed 7k` at 0.3283
-  - Best Precision: `packed 30k` at 0.5115
+  - Best F1: `packed 5.5k` at 0.3348
+  - Best Precision: `packed_fixed 25k` at 0.5495
   - Best Recall: `packed_fixed 1k` at 0.3875
-  - Speed: `packed 17k` is fastest at 100.95s average; `project` runs in 192.25s; `file` in 197.55s
-  - Project vs large packed: `project` F1 0.2555 vs `packed 30k` 0.2679; precision 0.4891 vs 0.5115; project is faster on average
+  - Speed: `packed 6.5k` is fastest at 93.06s average; `project` runs in 192.25s; `file` in 197.55s
+  - Large‑budget trade‑off: large packed/paked_fixed sizes boost precision (up to 0.5495 with `packed_fixed 25k`) while recall and F1 vary by dataset.
 
 - repos/validation-benchmarks:
-  - Best F1: `packed 7k` at 0.4318
+  - Best F1: `packed 5.5k` at 0.4675
   - Best Precision: `project` at 0.6923; trade-off with low recall 0.1765
-  - Best Recall: `packed_fixed 1k` at 0.5385
-  - Project vs `packed 30k`: F1 0.2812 vs 0.2812; project is faster (86.81s vs 92.08s)
+  - Best Recall: `syntactic 3k` at 0.5385
 
 - repos/juice-shop:
   - Best F1: `fixed_token 20k` at 0.2687
-  - Best Precision: `packed 40k` at 0.6
-  - Fastest: `packed 17k` at 90.74s
+  - Best Precision: `packed_fixed 25k` at 0.5
+  - Fastest: `packed_fixed 20k` at 99.50s
 
 - repos/verademo:
   - Best F1: `packed_fixed 13k` at 0.3363
-  - Best Precision: `packed_fixed 13k` at 0.4222
+  - Best Precision: `packed 30k` at 0.6471
   - Best Recall: `packed_fixed 4k` at 0.4038
-  - Fastest: `packed 15k` at 86.08s
+  - Fastest: `packed_fixed 15k` at 77.94s
 
 ### **Dataset Behavior**
 
 * **Generated**: Nearly perfect results since vulnerabilities were simple and isolated—useful as a sanity check but not used to guide conclusions.  
-* **Validation Benchmarks**: Best F1 around \~7k tokens (packed); larger sizes increased precision but not F1, and recall dropped as unrelated cases were combined—evidence of context dilution (question 1).  
+* **Validation Benchmarks**: Best F1 around \~5.5k tokens (packed); larger sizes increased precision but not F1, and recall dropped as unrelated cases were combined—evidence of context dilution (question 1).  
 * **Juice Shop**: The hardest dataset. Cross-file vulnerabilities made small chunks unreliable (question 2), while large chunks mixed test and production code, creating “context valleys” that confused the model (question 1).  
 * **Verademo**: Showed similar trends to Juice Shop but less extreme.
 
@@ -149,7 +148,7 @@ Note on very large contexts: We plan to revisit the largest chunk sizes after a 
 - **Whole files**: Strong baseline for simple repos, weaker for complex ones.  
 - **Fixed-size**: Showed the expected recall–precision trade-off, highlighting the balance between the two questions.  
 - **Syntactic (language-aware)**: Tracked fixed-size closely, underperforming slightly in some cases; less predictable than fixed_token due to overlap not always being enforced by the splitter.  
-- **Packed (+ packed_fixed variant)**: Best overall balance of accuracy, efficiency, and cost. `packed ~7k` leads on average and on validation‑benchmarks; `packed_fixed ~13k` edges out on verademo. At very small budgets, `packed_fixed` tends to show better recall; differences mainly appear when large files must be split before packing (syntactic vs. fixed_token bases).
+- **Packed (+ packed_fixed variant)**: Best overall balance of accuracy, efficiency, and cost. `packed ~5.5–7k` leads on average and on validation‑benchmarks; `packed_fixed ~13k` edges out on verademo. At very small budgets, `packed_fixed` tends to show better recall; differences mainly appear when large files must be split before packing (syntactic vs. fixed_token bases).
 
 ### **What We Expected vs. What We Found**
 
@@ -169,7 +168,7 @@ Our experiments confirm both sides of the tension:
 
 False positives from small chunks can be filtered out during triage, but false negatives from insufficient context are lost forever. This makes recall-critical scenarios especially sensitive to under-chunking.
 
-The best default today is **packed chunking**, with sizes around 7k tokens performing strongly across datasets and larger sizes (e.g., 30k) delivering the highest precision on average. That said, the **project** strategy now compares closely with large packed configurations while running faster in some cases, making it a pragmatic option when accuracy and speed both matter. The bigger lesson is that **context quality matters more than size**. More tokens aren’t always better if they introduce irrelevant code.
+The best default today is **packed chunking**, with sizes around 5.5–7k tokens performing strongly across datasets and larger sizes (e.g., 25–30k packed_fixed) delivering the highest precision on average. That said, the **project** strategy now compares closely with large packed configurations while running faster in some cases, making it a pragmatic option when accuracy and speed both matter. The bigger lesson is that **context quality matters more than size**. More tokens aren’t always better if they introduce irrelevant code.
 
 The future likely lies in adaptive chunking—strategies that dynamically choose context size based on repository scale, file structure, and the vulnerabilities being sought. This way, both questions can be balanced intelligently rather than forced into a one‑size‑fits‑all approach.
 
