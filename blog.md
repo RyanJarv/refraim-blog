@@ -117,7 +117,7 @@ Note on very large contexts: We plan to revisit the largest chunk sizes after a 
   - Best Precision: `packed_fixed 25k` at 0.5495
   - Best Recall: `packed_fixed 1k` at 0.3875
   - Speed: `packed 6.5k` is fastest at 93.06s average; `project` runs in 192.25s; `file` in 197.55s
-  - Large‑budget trade‑off: large packed/paked_fixed sizes boost precision (up to 0.5495 with `packed_fixed 25k`) while recall and F1 vary by dataset.
+  - Large‑budget trade‑off: large packed/packed_fixed sizes boost precision (up to 0.5495 with `packed_fixed 25k`) while recall and F1 vary by dataset.
 
 - repos/validation-benchmarks:
   - Best F1: `packed 5.5k` at 0.4675
